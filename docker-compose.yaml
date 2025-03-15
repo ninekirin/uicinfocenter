@@ -1,0 +1,106 @@
+# =========================
+# UIC Information Center
+# =========================
+
+services:
+  mariadb:
+    image: mariadb:11.4.5
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQLROOTPASSWORD}
+      MYSQL_DATABASE: ${MYSQLDATABASE}
+      MYSQL_USER: ${MYSQLUSER_BACKEND}
+      MYSQL_PASSWORD: ${MYSQLPASSWORD_BACKEND}
+    command: --interactive-timeout=31536000 --wait-timeout=31536000
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
+      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
+    # ports:
+    #   - "${MYSQLPORT}:3306"
+    restart: unless-stopped
+    networks:
+      - uicinfocenter
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQLROOTPASSWORD}"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  backend:
+    build: backend
+    environment:
+      MYSQLHOST: ${MYSQLHOST}
+      MYSQLPORT: ${MYSQLPORT}
+      MYSQLDATABASE: ${MYSQLDATABASE}
+      MYSQLUSER: ${MYSQLUSER_BACKEND}
+      MYSQLPASSWORD: ${MYSQLPASSWORD_BACKEND}
+      MYSQLCHARSET: ${MYSQLCHARSET}
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_REGISTRATION_TOKEN_SECRET_KEY: ${JWT_REGISTRATION_TOKEN_SECRET_KEY}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      MAIL_SERVER: ${MAIL_SERVER}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      DIFY_API_BASE: ${DIFY_API_BASE}
+      DIFY_APP_API_KEY: ${DIFY_APP_API_KEY}
+      DIFY_DATASET_API_KEY: ${DIFY_DATASET_API_KEY}
+      CHATGPT_API_BASE: ${CHATGPT_API_BASE}
+      CHATGPT_API_KEY: ${CHATGPT_API_KEY}
+      CHATGPT_API_MODEL: ${CHATGPT_API_MODEL}
+      SILICONFLOW_API_BASE: ${SILICONFLOW_API_BASE}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY}
+      SILICONFLOW_API_MODEL: ${SILICONFLOW_API_MODEL}
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - uicinfocenter
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  text2sql:
+    build: text2sql_fastapi
+    # ports:
+    #   - "${TEXT2SQL_PORT}:3278"
+    environment:
+      MYSQLHOST: ${MYSQLHOST}
+      MYSQLPORT: ${MYSQLPORT}
+      MYSQLDATABASE: ${MYSQLDATABASE}
+      MYSQLUSER: ${MYSQLUSER_TEXT2SQL}
+      MYSQLPASSWORD: ${MYSQLPASSWORD_TEXT2SQL}
+      MYSQLCHARSET: ${MYSQLCHARSET}
+      CHATGPT_API_BASE: ${CHATGPT_API_BASE}
+      CHATGPT_API_KEY: ${CHATGPT_API_KEY}
+      CHATGPT_API_MODEL: ${CHATGPT_API_MODEL}
+      SILICONFLOW_API_BASE: ${SILICONFLOW_API_BASE}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY}
+      SILICONFLOW_API_MODEL: ${SILICONFLOW_API_MODEL}
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - uicinfocenter
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  frontend:
+    build: frontend
+    ports:
+      - "${APP_PORT}:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - text2sql
+    networks:
+      - uicinfocenter
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+networks:
+  uicinfocenter:
+    driver: bridge

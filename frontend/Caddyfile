@@ -1,0 +1,20 @@
+:80 {
+    handle /api/* {
+        reverse_proxy backend:2225
+    }
+
+    handle /text2sql/* {
+        reverse_proxy text2sql:3278
+    }
+
+    handle /* {
+        root * /srv
+        file_server
+        try_files {path} /index.html
+    }
+
+    log {
+        level info
+        format console
+    }
+}
