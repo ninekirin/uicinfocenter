@@ -50,7 +50,7 @@ html {
 .form-container {
   flex: 1;
   height: 100%;
-  max-height: 500px;
+  max-height: 600px;
   margin: 0 auto;
   /* width: 400px; */
   background: rgba(255, 255, 255, 0.9); /* white with 90% opacity */
