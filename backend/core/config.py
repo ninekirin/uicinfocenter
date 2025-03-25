@@ -15,8 +15,8 @@ class BaseConfig():
         HOSTNAME = os.getenv('MYSQLHOST', 'mariadb')
         PORT = os.getenv('MYSQLPORT', '3306')
         DATABASE = os.getenv('MYSQLDATABASE', 'uicinfocenter')
-        USERNAME = os.getenv('MYSQLUSER_BACKEND', 'uicinfocenter')
-        PASSWORD = os.getenv('MYSQLPASSWORD_BACKEND', 'backend_password')
+        USERNAME = os.getenv('MYSQLUSER', 'uicinfocenter')
+        PASSWORD = os.getenv('MYSQLPASSWORD', 'backend_password')
         CHARSET = os.getenv('MYSQLCHARSET', 'utf8mb4')
         SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}:{}/{}?charset={}'.format(
             USERNAME, PASSWORD, HOSTNAME, PORT, DATABASE, CHARSET)
