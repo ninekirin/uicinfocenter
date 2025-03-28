@@ -207,14 +207,20 @@ const ListDatasets = () => {
       navigate('/login', {
         state: { navBackMsg: 'Your session has timed out. Please log in again.' },
       });
-    } else {
-      const params = Object.fromEntries(searchParams.entries());
-      setSearchKeyword(params.keyword);
-      if (!params.page || !params.limit) {
-        setSearchParams({ ...params, page: 1, limit: 10 });
-      }
-      getDatasets(params);
+      return;
     }
+
+    const params = Object.fromEntries(searchParams.entries());
+    setSearchKeyword(params.keyword);
+
+    // First visit: Set default pagination parameters without fetching data
+    if (!params.page || !params.limit) {
+      setSearchParams({ ...params, page: 1, limit: 10 });
+      return;
+    }
+
+    // Only fetch data when we have the required parameters
+    getDatasets(params);
   }, [navigate, searchParams, userToken]);
 
   return (
