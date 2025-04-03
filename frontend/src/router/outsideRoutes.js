@@ -10,12 +10,6 @@ export const outsideRoutes = [
       : 'login',
     hidden: true,
   },
-  // {
-  //   path: 'campus-essentials',
-  //   title: 'Campus Essentials',
-  //   icon: <CompassOutlined />,
-  //   component: lazy(() => import('@/pages/CampusEssentials')),
-  // },
   {
     path: 'chat',
     title: 'Chat',
@@ -34,6 +28,12 @@ export const outsideRoutes = [
         component: lazy(() => import('@/pages/Chat/Shared')),
       },
     ],
+  },
+  {
+    path: 'chat-demo',
+    title: 'ChatDemo',
+    meta: { title: '', roles: [] },
+    component: lazy(() => import('@/pages/ChatDemo')),
   },
   {
     path: '/login',

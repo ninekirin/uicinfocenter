@@ -312,3 +312,108 @@ class DIFYDatasetsDocumentsCreateByFileProxy(Resource):
         )
 
         return response.json()
+
+
+"""
+For demo only, not used in production
+"""
+
+@dify_ns.route("/demo/chat-messages")
+class DIFYChatMessagesProxy(Resource):
+    def post(cls):
+        data = request.json
+        data["user"] = "demo_user"
+        # print(data)
+
+        headers = {
+            "Authorization": "Bearer " + BaseConfig.DIFY_APP_API_KEY,
+            "Content-Type": "application/json",
+        }
+
+        response_mode = data.get("response_mode", "")
+        stream = response_mode == "streaming"
+        dify_api_endpoint = BaseConfig.DIFY_API_BASE + "/chat-messages"
+
+        response = requests.post(
+            url=dify_api_endpoint,
+            headers=headers,
+            json=data,
+            stream=stream,
+            verify=False,
+        )
+
+        if stream:
+
+            def generate():
+                for chunk in response.iter_content(chunk_size=1024):
+                    yield chunk
+
+            return Response(
+                stream_with_context(generate()),
+                content_type=response.headers["Content-Type"],
+            )
+        else:
+            return response.json()
+
+
+# 获取对话历史消息
+@dify_ns.route("/demo/messages")
+class DIFYMessagesProxy(Resource):
+    def get(cls):
+        data = request.args.to_dict()
+        data["user"] = "demo_user"
+
+        headers = {
+            "Authorization": "Bearer " + BaseConfig.DIFY_APP_API_KEY,
+        }
+
+        dify_api_endpoint = BaseConfig.DIFY_API_BASE + "/messages"
+
+        response = requests.get(
+            url=dify_api_endpoint, headers=headers, params=data, verify=False
+        )
+
+        return response.json()
+
+
+# 获取下一轮建议问题列表
+@dify_ns.route("/demo/messages/<string:message_id>/suggested")
+class DIFYMetaProxy(Resource):
+    def get(cls, message_id):
+        data = dict()
+        data["user"] = "demo_user"
+
+        headers = {
+            "Authorization": "Bearer " + BaseConfig.DIFY_APP_API_KEY,
+        }
+
+        dify_api_endpoint = (
+            BaseConfig.DIFY_API_BASE + "/messages/" + message_id + "/suggested"
+        )
+
+        response = requests.get(
+            url=dify_api_endpoint, headers=headers, params=data, verify=False
+        )
+
+        return response.json()
+
+
+# 获取会话列表
+@dify_ns.route("/demo/conversations")
+class DIFYConversationsProxy(Resource):
+    def get(cls):
+        data = request.args.to_dict()
+        data["user"] = "demo_user"
+        # print(data)
+
+        headers = {
+            "Authorization": "Bearer " + BaseConfig.DIFY_APP_API_KEY,
+        }
+
+        dify_api_endpoint = BaseConfig.DIFY_API_BASE + "/conversations"
+
+        response = requests.get(
+            url=dify_api_endpoint, headers=headers, params=data, verify=False
+        )
+
+        return response.json()
