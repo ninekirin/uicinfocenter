@@ -1,6 +1,7 @@
 import logo from '@/assets/image/uic_logo.svg';
 import { apiBaseUrl } from '@/assets/js/config.js';
 import {
+  DeleteOutlined,
   DownOutlined,
   EllipsisOutlined,
   FormOutlined,
@@ -38,6 +39,10 @@ const Chat = () => {
   const { token } = useToken();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const userToken = localStorage.getItem('userToken');
+  const [user, setUser] = useState(
+    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : {}
+  );
   const [controller, setController] = useState(null);
   const { isMobile } = useSelector(state => state.SettingModel);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -120,6 +125,36 @@ const Chat = () => {
       })
       .catch(error => {
         message.error('Error getting more conversations.');
+      });
+  };
+
+  const deleteConversation = conversationId => {
+    fetch(`${apiBaseUrl}/dify/demo/conversations/${conversationId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => res.json())
+      .then(response => {
+        if (response.result === 'success') {
+          setConversations(prev => prev.filter(item => item.id !== conversationId));
+          if (conversationId === currentConversation.conversation_id) {
+            setCurrentConversation({
+              conversation_id: '',
+              conversation_index: NaN,
+              conversation_name: '',
+            });
+            setProChatData({ chats: [], config: {} });
+          }
+          message.success('Conversation deleted successfully');
+        } else {
+          handleTokenError(response.code);
+        }
+      })
+      .catch(error => {
+        message.error('Error deleting conversation.');
       });
   };
 
@@ -295,7 +330,7 @@ const Chat = () => {
     const items = [];
 
     if (conversationId !== '') {
-      items.unshift({
+      items.push({
         key: 'share',
         label: (
           <Space>
@@ -317,10 +352,32 @@ const Chat = () => {
       });
     }
 
+    if (user.user_type === 'ADMIN') {
+      items.push({
+        key: 'delete',
+        label: (
+          <Space>
+            <DeleteOutlined />
+            Delete
+          </Space>
+        ),
+        onClick: e => {
+          e.domEvent.stopPropagation();
+          deleteConversation(conversationId);
+        },
+      });
+    }
+
     return items;
   }, []);
 
   useEffect(() => {
+    // If the user is already logged in, redirect to the chat page
+    if (user.user_type && user.user_type !== 'ADMIN') {
+      message.info('User is already logged in. Redirecting to chat page...');
+      navigate('/chat');
+      return;
+    }
     getConversations();
     const params = Object.fromEntries(searchParams.entries());
     if (params.cid) {

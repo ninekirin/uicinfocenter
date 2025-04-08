@@ -417,3 +417,30 @@ class DIFYConversationsProxy(Resource):
         )
 
         return response.json()
+
+
+# 管理员删除 demo_user 会话
+@dify_ns.route("/demo/conversations/<string:conversation_id>")
+class DIFYConversationsDeteleProxy(Resource):
+    @jwt_token_required
+    @admin_required
+    def delete(self, cls, conversation_id):
+        # data = request.json
+        data = dict()
+        data["user"] = "demo_user"
+        # print(data)
+
+        headers = {
+            "Authorization": "Bearer " + BaseConfig.DIFY_APP_API_KEY,
+            "Content-Type": "application/json",
+        }
+
+        dify_api_endpoint = (
+            BaseConfig.DIFY_API_BASE + "/conversations/" + conversation_id
+        )
+
+        response = requests.delete(
+            url=dify_api_endpoint, headers=headers, json=data, verify=False
+        )
+
+        return response.json()
