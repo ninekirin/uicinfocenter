@@ -50,7 +50,7 @@ Convert natural language questions about courses and sections into precise {dial
 - `course_id`: Identifier for the associated course
 - `section_number`: Number identifying the section (e.g. 1001, 1002)
 - `classroom`: Room where the class is held (e.g. T4-301)
-- `schedule`: Schedule of the class (e.g. Mon 10:00-12:00) (*Note: The format is Mon HH:MM-HH:MM)
+- `schedule`: Schedule of the class (e.g. Mon 10:00; You can use LIKE to match the time, e.g. section.schedule LIKE "%Mon%" AND section.schedule LIKE "%10:00%";)
 - `hours`: Number of hours for the class (e.g. 2)
 - `remarks`: Additional notes or remarks
 - `teachers`: Instructor(s) for the section (e.g. Dr. Raymond Shu Tak LEE)
