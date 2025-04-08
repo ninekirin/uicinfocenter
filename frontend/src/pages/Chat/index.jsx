@@ -285,7 +285,8 @@ const Chat = () => {
       .then(response => {
         if (response.data) {
           const messages = [];
-          response.data.forEach(item => { // dify >= 1.0.0
+          response.data.forEach(item => {
+            // dify >= 1.0.0
             // response.data.reverse().forEach(item => { // dify <= 0.15.3
             messages.push({
               content: item.query,
@@ -443,6 +444,7 @@ const Chat = () => {
       ),
       onClick: () => {
         localStorage.removeItem('userToken');
+        localStorage.removeItem('user');
         navigate('/login', { state: { navBackMsg: 'You have logged out.' } });
       },
     },

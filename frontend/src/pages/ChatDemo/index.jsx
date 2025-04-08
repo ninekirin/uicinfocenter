@@ -5,7 +5,6 @@ import {
   DownOutlined,
   EllipsisOutlined,
   FormOutlined,
-  HomeOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -301,27 +300,25 @@ const Chat = () => {
 
   const navBarDropdownMenuItems = [
     {
-      key: 'goToRegister',
-      label: (
-        <Space>
-          <LogoutOutlined />
-          Register Now!
-        </Space>
-      ),
+      key: user.user_type === 'ADMIN' ? 'goToHome' : 'goToRegister',
+      label:
+        user.user_type === 'ADMIN' ? (
+          <Space>
+            <LogoutOutlined />
+            Home
+          </Space>
+        ) : (
+          <Space>
+            <LogoutOutlined />
+            Register Now!
+          </Space>
+        ),
       onClick: () => {
-        navigate('/register');
-      },
-    },
-    {
-      key: 'goToLogin',
-      label: (
-        <Space>
-          <HomeOutlined />
-          Login
-        </Space>
-      ),
-      onClick: () => {
-        navigate('/login');
+        if (user.user_type === 'ADMIN') {
+          navigate('/home');
+        } else {
+          navigate('/register');
+        }
       },
     },
   ];
@@ -730,7 +727,7 @@ const Chat = () => {
             <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
               <Space style={{ marginRight: '12px' }}>
                 <UserOutlined />
-                Demo User
+                {user.user_type === 'ADMIN' ? user.username : 'Demo User'}
                 <DownOutlined />
               </Space>
             </a>
