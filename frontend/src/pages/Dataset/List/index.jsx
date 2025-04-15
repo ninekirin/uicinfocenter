@@ -126,13 +126,20 @@ const ListDatasets = () => {
       .then(res => res.json())
       .then(response => {
         if (response.data) {
-          setDatasets(response.data);
+          const filteredData = response.data.filter(
+            dataset =>
+              dataset.name.includes('UIC') ||
+              dataset.description.includes('UIC') ||
+              dataset.name.includes('BNBU') ||
+              dataset.description.includes('BNBU')
+          );
+          setDatasets(filteredData);
           setTableParams(prev => ({
             ...prev,
             pagination: {
               current: response.page,
               pageSize: response.limit,
-              total: response.total,
+              total: filteredData.length,
             },
           }));
         } else {
